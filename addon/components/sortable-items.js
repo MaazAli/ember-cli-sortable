@@ -15,21 +15,20 @@ var SortableItems = Ember.Component.extend({
   handle: '',
   filter: '',
   draggable: '',
-  ghostClass: '.sortable-ghost',
+  ghostClass: 'sortable-ghost',
   scroll: true,
   scrollSensitivity: 30, // px
   scrollSpeed: 10, // px
 
   setup: function() {
     var self = this;
-    this.$().sortable({
+    var options = {
       sort: this.get('sort'),
       disabled: this.get('disabled'),
       store: this.get('store'),
       animation: this.get('animation'),
       handle: this.get('handle'),
       filter: this.get('filter'),
-      draggable: this.get('draggable'),
       ghostClass: this.get('ghostClass'),
       scroll: this.get('scroll'),
       scrollSensitivity: this.get('scrollSensitivity'),
@@ -69,7 +68,14 @@ var SortableItems = Ember.Component.extend({
           self.sendAction('onFilterAction', event);
         }
       }
-    });
+    }
+
+    if (this.get('draggable')) {
+      options.draggable = this.get('draggable');
+    }
+
+    this.$().sortable(options);
+    
   }.on('didInsertElement'),
 
   teardown: function() {
