@@ -3,6 +3,7 @@ import layout from '../templates/components/sortable-items';
 /* global Sortable */
 
 var SortableItems = Ember.Component.extend({
+  target: Ember.computed.alias('targetObject'), // Bubble up all actions
   layout: layout,
   tagName: "ul",
   classNames: ['sortable-items'],
@@ -75,7 +76,7 @@ var SortableItems = Ember.Component.extend({
     }
 
     this.$().sortable(options);
-    
+
   }.on('didInsertElement'),
 
   teardown: function() {
