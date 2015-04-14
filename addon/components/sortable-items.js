@@ -3,7 +3,7 @@ import Ember from 'ember';
 
 var SortableItems = Ember.Component.extend({
   tagName: "ul",
-  classNames: ['sortable-items']
+  classNames: ['sortable-items'],
   setup: function() {
     var sortable = new Sortable(this.$(), {
       animation: 150,
