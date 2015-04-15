@@ -59,8 +59,8 @@ var SortableItems = Ember.Component.extend({
       var item = collection.objectAt(evt.oldIndex);
       collection.removeObject(item);
       collection.insertAt(evt.newIndex, item);
-      Ember.run.next(this, function() {
-        // In the next run loop we'll have to remove the
+      Ember.run.scheduleOnce('afterRender', this, function() {
+        // After the render we'll have to remove the
         // extra item that's created because of the update
         // to the collection
         this.$().children()[evt.newIndex + 1].remove();
