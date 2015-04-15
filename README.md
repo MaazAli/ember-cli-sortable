@@ -36,5 +36,32 @@ This template will be looped over all the items in the array.
 </div>
 ```
 
+####Supports all properties and callbacks from [RubaXa's Sortable](https://github.com/RubaXa/Sortable)
+
+####Properties
+```
+sort
+disabled
+store
+animation
+handle
+filter
+draggable
+ghostClass
+scroll
+scrollSensitivity
+scrollSpeed
+```
+####Callbacks
+```
+onStart
+onAdd
+onEnd
+onUpdate
+onSort
+onRemove
+onFilter
+```
+
 ## Contribution
 Fork this repository, make a feature branch and send in a pull request.
