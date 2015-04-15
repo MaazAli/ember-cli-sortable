@@ -4,22 +4,37 @@ This README outlines the details of collaborating on this Ember addon.
 
 ## Installation
 
-* `git clone` this repository
-* `npm install`
-* `bower install`
+```sh
+ember install:npm ember-cli-sortable
+ember generate ember-cli-sortable
+```
 
-## Running
+## Usage
 
-* `ember server`
-* Visit your app at http://localhost:4200.
+```handlebars
+{{sortable-items
+  itemCollection=someArray
+  animation=100
+  handle=".item__handle"
+  filter=".item--pinned"
+  draggable=".item--sortable"
+  ghostClass="item--ghost"
+  onUpdateAction="itemMoved"
+  templateName="sortable-items-partial"
+  noItemText="<div style='text-align:center'>No channel items found</div>"
+}}
+```
 
-## Running Tests
+You'll then need a partial named `sortable-items-partial` that will have access to `item`
+This template will be looped over all the items in the array.
 
-* `ember test`
-* `ember test --server`
+`sortable-items-partial.hbs`
+```handelbars
+<div class="item">
+  <div class="item__handle">{{item.name}}</div>
+  <div class="item__sub">{{item.content}}</div>
+</div>
+```
 
-## Building
-
-* `ember build`
-
-For more information on using ember-cli, visit [http://www.ember-cli.com/](http://www.ember-cli.com/).
+## Contribution
+Fork this repository, make a feature branch and send in a pull request.
