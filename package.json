@@ -1,6 +1,6 @@
 {
   "name": "ember-cli-sortable",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "Ember CLI addon for RubaXa's sortable plugin",
   "directories": {
     "doc": "doc",

@@ -1,6 +1,7 @@
-# Ember-cli-sortable
+# ember-cli-sortable
 
-This README outlines the details of collaborating on this Ember addon.
+This is an ember-cli addon that integrates [RubaXa's Sortable](https://github.com/RubaXa/Sortable) plugin with Ember.
+It is still rough around the edges but works pretty well and is currently being used in production.
 
 ## Installation
 
