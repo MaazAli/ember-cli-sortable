@@ -21,7 +21,7 @@ ember generate ember-cli-sortable
   ghostClass="item--ghost"
   onUpdateAction="itemMoved"
   templateName="sortable-items-partial"
-  noItemText="<div style='text-align:center'>No channel items found</div>"
+  noItemText="<div style='text-align:center'>No items found</div>"
 }}
 ```
 
