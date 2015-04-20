@@ -20,7 +20,7 @@ ember generate ember-cli-sortable
   filter=".item--pinned"
   draggable=".item--sortable"
   ghostClass="item--ghost"
-  onUpdateAction="itemMoved"
+  onItemMoveAction="itemMoved"
   templateName="sortable-items-partial"
   noItemText="<div style='text-align:center'>No items found</div>"
 }}
@@ -36,6 +36,8 @@ This template will be looped over all the items in the array.
   <div class="item__sub">{{item.content}}</div>
 </div>
 ```
+
+You'll also need an `itemMoved` action handler in your controller / parent component as per the example above.
 
 ####Supports all properties and callbacks from [RubaXa's Sortable](https://github.com/RubaXa/Sortable)
 
@@ -62,6 +64,19 @@ onUpdate
 onSort
 onRemove
 onFilter
+```
+
+Add `Action` at the end of each callback to specify your own action handlers
+
+Example
+```handlebars
+{{sortable-items
+  onStartAction="myStartAction"
+  onAddAction="myAddAction"
+  ...
+  ...
+  ...
+}}
 ```
 
 ## Contribution
