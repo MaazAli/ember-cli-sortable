@@ -193,39 +193,37 @@ var SortableItems = Ember.Component.extend({
   _onMove: function(evt) {
     this._sendOutAction('onMoveAction', evt);
 
-    Ember.run(this, function() {
-      var vector;
-      var freeze = false;
-      var freezeSelector = this.get('freeze');
+    var vector;
+    var freeze = false;
+    var freezeSelector = this.get('freeze');
 
-      if (freezeSelector) {
-        clearTimeout(pid);
+    if (freezeSelector) {
+      clearTimeout(pid);
 
-        pid = setTimeout(function () {
-          var list = evt.to;
-          frozen.forEach(function (el, i) {
-            var idx = positions[i];
-
-            if (list.children[idx] !== el) {
-              var realIdx = Sortable.utils.index(el);
-              list.insertBefore(el, list.children[idx + (realIdx < idx)]);
-            }
-          });
-        }, 0);
-
+      pid = setTimeout(function () {
+        var list = evt.to;
         frozen.forEach(function (el, i) {
-          if (el === evt.related) {
-            freeze = true;
-          }
+          var idx = positions[i];
 
-          if (evt.related.nextElementSibling === el &&
-              evt.relatedRect.top < evt.draggedRect.top) {
-            vector = -1;
+          if (list.children[idx] !== el) {
+            var realIdx = Sortable.utils.index(el);
+            list.insertBefore(el, list.children[idx + (realIdx < idx)]);
           }
         });
-        return freeze ? false : vector;
-      }
-    });
+      }, 0);
+
+      frozen.forEach(function (el, i) {
+        if (el === evt.related) {
+          freeze = true;
+        }
+
+        if (evt.related.nextElementSibling === el &&
+            evt.relatedRect.top < evt.draggedRect.top) {
+          vector = -1;
+        }
+      });
+      return freeze ? false : vector;
+    }
   },
 
 
