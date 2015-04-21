@@ -18,7 +18,7 @@ ember generate ember-cli-sortable
   animation=100
   handle=".item__handle"
   filter=".item--pinned"
-  draggable=".item--sortable"
+  draggable=".item"
   ghostClass="item--ghost"
   onItemMoveAction="itemMoved"
   templateName="sortable-items-partial"
