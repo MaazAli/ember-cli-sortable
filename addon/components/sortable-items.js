@@ -16,7 +16,6 @@ var SortableItems = Ember.Component.extend({
 
   /**
     Sortable properties with reasonable defaults
-
     @properties
     @public
   */
@@ -226,6 +225,15 @@ var SortableItems = Ember.Component.extend({
     }
   },
 
+  /**
+    @method _updateOptionDisabled
+    @private
+    Used to update sortable properties
+  */
+  _updateOptionDisabled: function() {
+    var _sortableInstance = this.get('_sortableInstance');
+    _sortableInstance.option('disabled', this.get('disabled'));
+  }.observes('disabled'),
 
   /**
     @method _sendOutAction
