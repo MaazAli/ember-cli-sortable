@@ -113,7 +113,12 @@ var SortableItems = Ember.Component.extend({
     An item is dropped into the list from another list
   */
   _onAdd: function(evt) {
-    this._sendOutAction('onAddAction', evt);
+    var collection = this.get('itemCollection');
+    var item = collection.objectAt(evt.oldIndex);
+
+    if(this.get('onAddAction')){
+      this.sendAction('onAddAction', item, evt.oldIndex, evt.newIndex);
+    }
   },
 
   /**
