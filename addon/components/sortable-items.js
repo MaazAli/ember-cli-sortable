@@ -37,7 +37,6 @@ var SortableItems = Ember.Component.extend({
     callbacks to private methods
   */
   setup: function() {
-    var self = this;
     var options = {
       sort: this.get('sort'),
       disabled: this.get('disabled'),
@@ -57,7 +56,7 @@ var SortableItems = Ember.Component.extend({
       onRemove: Ember.run.bind(this, this._onRemove),
       onFilter: Ember.run.bind(this, this._onFilter),
       onMove: Ember.run.bind(this, this._onMove)
-    }
+    };
 
     if (this.get('draggable')) {
       options.draggable = this.get('draggable');
@@ -213,7 +212,7 @@ var SortableItems = Ember.Component.extend({
         });
       }, 0);
 
-      frozen.forEach(function (el, i) {
+      frozen.forEach(function (el) {
         if (el === evt.related) {
           freeze = true;
         }
