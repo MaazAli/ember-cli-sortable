@@ -30,6 +30,7 @@ var SortableItems = Ember.Component.extend({
   scroll: true,
   scrollSensitivity: 30, // px
   scrollSpeed: 10, // px
+  group: null,
 
   /**
     @method setup
@@ -39,6 +40,7 @@ var SortableItems = Ember.Component.extend({
   setup: function() {
     var options = {
       sort: this.get('sort'),
+      group: this.get('group'),
       disabled: this.get('disabled'),
       store: this.get('store'),
       animation: this.get('animation'),
