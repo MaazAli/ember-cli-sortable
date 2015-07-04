@@ -19,6 +19,7 @@ var SortableItems = Ember.Component.extend({
     @properties
     @public
   */
+  group: null,
   sort: true,
   disabled: false,
   store: null,
@@ -39,6 +40,7 @@ var SortableItems = Ember.Component.extend({
   setup: function() {
     var self = this;
     var options = {
+      group: this.get('group'),
       sort: this.get('sort'),
       disabled: this.get('disabled'),
       store: this.get('store'),
