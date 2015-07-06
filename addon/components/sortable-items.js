@@ -31,6 +31,7 @@ var SortableItems = Ember.Component.extend({
   scroll: true,
   scrollSensitivity: 30, // px
   scrollSpeed: 10, // px
+  group: null,
 
   /**
     @method setup
@@ -38,10 +39,10 @@ var SortableItems = Ember.Component.extend({
     callbacks to private methods
   */
   setup: function() {
-    var self = this;
     var options = {
       group: this.get('group'),
       sort: this.get('sort'),
+      group: this.get('group'),
       disabled: this.get('disabled'),
       store: this.get('store'),
       animation: this.get('animation'),
@@ -59,7 +60,7 @@ var SortableItems = Ember.Component.extend({
       onRemove: Ember.run.bind(this, this._onRemove),
       onFilter: Ember.run.bind(this, this._onFilter),
       onMove: Ember.run.bind(this, this._onMove)
-    }
+    };
 
     if (this.get('draggable')) {
       options.draggable = this.get('draggable');
@@ -114,7 +115,12 @@ var SortableItems = Ember.Component.extend({
     An item is dropped into the list from another list
   */
   _onAdd: function(evt) {
-    this._sendOutAction('onAddAction', evt);
+    var collection = this.get('itemCollection');
+    var item = collection.objectAt(evt.oldIndex);
+
+    if(this.get('onAddAction')){
+      this.sendAction('onAddAction', item, evt.oldIndex, evt.newIndex);
+    }
   },
 
   /**
@@ -215,7 +221,7 @@ var SortableItems = Ember.Component.extend({
         });
       }, 0);
 
-      frozen.forEach(function (el, i) {
+      frozen.forEach(function (el) {
         if (el === evt.related) {
           freeze = true;
         }
