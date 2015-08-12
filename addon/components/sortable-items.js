@@ -132,24 +132,14 @@ var SortableItems = Ember.Component.extend({
       var freezeSelector = this.get('freeze');
       collection.removeAt(evt.oldIndex);
       collection.insertAt(evt.newIndex, item);
-      // Remove the duplicate
-      evt.item.parentNode.removeChild(evt.item);
 
       if (freezeSelector) {
-        var duplicates = 0;
         frozenObjects.forEach(function(obj, i) {
           var pos = positions[i];
           if (collection.objectAt(pos) !== obj) {
             var realPos = collection.indexOf(obj);
             collection.removeAt(realPos);
             collection.insertAt(pos, obj);
-            // Remove the duplicate
-            if (realPos > pos) {
-              list.children[pos - 1 - duplicates].remove();
-            } else {
-              list.children[pos + duplicates].remove();
-            }
-            duplicates++;
           }
         });
       }
