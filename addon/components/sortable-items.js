@@ -130,10 +130,10 @@ var SortableItems = Ember.Component.extend({
       var item = collection.objectAt(evt.oldIndex);
       var list = evt.to;
       var freezeSelector = this.get('freeze');
-      collection.removeAt(evt.oldIndex);
-      collection.insertAt(evt.newIndex, item);
-      // Remove the duplicate
-      evt.item.parentNode.removeChild(evt.item);
+      // update the collection without triggering array observers
+      // this prevents recreating and inserting the element
+      collection.splice(evt.oldIndex, 1);
+      collection.splice(evt.newIndex, 0, item);
 
       if (freezeSelector) {
         var duplicates = 0;
@@ -141,8 +141,8 @@ var SortableItems = Ember.Component.extend({
           var pos = positions[i];
           if (collection.objectAt(pos) !== obj) {
             var realPos = collection.indexOf(obj);
-            collection.removeAt(realPos);
-            collection.insertAt(pos, obj);
+            collection.splice(realPos, 1);
+            collection.splice(pos, 0, obj);
             // Remove the duplicate
             if (realPos > pos) {
               list.children[pos - 1 - duplicates].remove();
