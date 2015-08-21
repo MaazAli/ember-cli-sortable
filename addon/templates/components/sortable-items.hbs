@@ -1,5 +1,5 @@
 {{#each itemCollection as |item index|}}
-  {{partial templateName}}
+  {{yield}}
 {{else}}
   {{{noItemText}}}
 {{/each}}
