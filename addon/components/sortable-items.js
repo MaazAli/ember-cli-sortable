@@ -144,7 +144,7 @@ var SortableItems = Ember.Component.extend({
       }
 
 
-      this.sendAction('onItemMoveAction', item, evt.oldIndex, evt.newIndex);
+      this.sendAction('onItemMoveAction', item, evt.oldIndex, evt.newIndex, collection);
 
     });
   },
