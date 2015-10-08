@@ -128,7 +128,6 @@ var SortableItems = Ember.Component.extend({
     Ember.run(this, function() {
       var collection = this.get('itemCollection');
       var item = collection.objectAt(evt.oldIndex);
-      var list = evt.to;
       var freezeSelector = this.get('freeze');
       collection.removeAt(evt.oldIndex);
       collection.insertAt(evt.newIndex, item);
@@ -145,7 +144,7 @@ var SortableItems = Ember.Component.extend({
       }
 
 
-      this.sendAction('onItemMoveAction', item, evt.oldIndex, evt.newIndex);
+      this.sendAction('onItemMoveAction', item, evt.oldIndex, evt.newIndex, collection);
 
     });
   },
