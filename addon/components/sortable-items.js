@@ -10,9 +10,13 @@ var pid,
 var SortableItems = Ember.Component.extend({
   target: Ember.computed.alias('targetObject'), // Bubble up all actions
   layout: layout,
-  tagName: "ul",
+  tagName: "div",
   classNames: ['sortable-items'],
   classNameBindings: ['class'],
+
+  itemCollection: [],
+  _itemCollection: [],
+  _itemCollectionSorted: [],
 
   /**
     Sortable properties with reasonable defaults
@@ -24,9 +28,9 @@ var SortableItems = Ember.Component.extend({
   disabled: false,
   store: null,
   animation: 150,
-  handle: '',
+  handle: '.item',
   filter: '',
-  draggable: '',
+  draggable: '.item',
   ghostClass: 'sortable-ghost',
   scroll: true,
   scrollSensitivity: 30, // px
@@ -37,7 +41,7 @@ var SortableItems = Ember.Component.extend({
     Initializes Sortable with given properties and binds
     callbacks to private methods
   */
-  setup: function() {
+  setup: Ember.on('didInsertElement', function() {
 
     var options = {
       group: this.get('group'),
@@ -47,6 +51,7 @@ var SortableItems = Ember.Component.extend({
       animation: this.get('animation'),
       handle: this.get('handle'),
       filter: this.get('filter'),
+      draggable: this.get('draggable'),
       ghostClass: this.get('ghostClass'),
       scroll: this.get('scroll'),
       scrollSensitivity: this.get('scrollSensitivity'),
@@ -61,13 +66,27 @@ var SortableItems = Ember.Component.extend({
       onMove: Ember.run.bind(this, this._onMove)
     };
 
-    if (this.get('draggable')) {
-      options.draggable = this.get('draggable');
-    }
-
-    this.set('_sortableInstance', new Sortable(this.$()[0], options));
-
-  }.on('didInsertElement'),
+    var instance = new Sortable(this.$()[0], options);
+    var collection = this.get('itemCollection');
+    this.set('_itemCollection', collection.slice());
+    this.set('_itemCollectionSorted', collection.slice());
+    this.set('_sortableInstance', instance);
+    Array.prototype.forEach.call(instance.el.children, function(item, i) {
+      if (item.dataset) {
+        item.dataset.item = collection.objectAt(i);
+        item.dateset.id = i;
+      }
+    });
+    this.addObserver('itemCollection', function() {
+      var collection = this.get('itemCollection');
+      if (collection.length && collection.isAny(function(item, i) {
+        return item !== this.get('itemCollectionSorted').objectAt(i);
+      })) {
+        this.set('_itemCollection', collection);
+        this.set('_itemCollectionSorted', collection);
+      }
+    });
+  }),
 
 
   /**
@@ -123,8 +142,12 @@ var SortableItems = Ember.Component.extend({
     Changed sorting within list
   */
   _onUpdate: function(evt) {
+    var sortedCollection  = Array.prototype.map.call(this.$().children(), function(item) {
+      return item.dataset.item;
+    });
+    this.set('_itemCollectionSorted', sortedCollection);
+    this.set('itemCollection', sortedCollection);
     this._sendOutAction('onUpdateAction', evt);
-    this.sendAction('onItemMoveAction', evt.oldIndex, evt.newIndex);
   },
 
   /**
@@ -201,10 +224,10 @@ var SortableItems = Ember.Component.extend({
     @private
     Used to update sortable properties
   */
-  _updateOptionDisabled: function() {
+  _updateOptionDisabled: Ember.observer('disabled', function() {
     var _sortableInstance = this.get('_sortableInstance');
     _sortableInstance.option('disabled', this.get('disabled'));
-  }.observes('disabled'),
+  }),
 
   /**
     @method _sendOutAction
@@ -218,12 +241,12 @@ var SortableItems = Ember.Component.extend({
     }
   },
 
-  teardown: function() {
+  teardown: Ember.on('willDestroyElement', function() {
     var _sortableInstance = this.get('_sortableInstance');
     if (_sortableInstance) {
       _sortableInstance.destroy();
     }
-  }.on('willDestroyElement')
+  })
 
 });
 

@@ -1,6 +1,5 @@
-{{#each itemCollection as |item index|}}
-  {{yield item index}}
+{{#each _itemCollection as |item index|}}
+  {{yield item removeItem}}
 {{else}}
   {{{noItemText}}}
 {{/each}}
-{{yield}}
