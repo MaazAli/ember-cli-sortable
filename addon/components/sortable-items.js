@@ -25,13 +25,15 @@ var SortableItems = Ember.Component.extend({
   */
   group: null,
   sort: true,
+  delay: 50,
   disabled: false,
   store: null,
-  animation: 150,
+  animation: 200,
   handle: '.item',
   filter: '',
   draggable: '.item',
   ghostClass: 'sortable-ghost',
+  chosenClass: 'sortable-chosen',
   scroll: true,
   scrollSensitivity: 30, // px
   scrollSpeed: 10, // px
@@ -46,6 +48,7 @@ var SortableItems = Ember.Component.extend({
     var options = {
       group: this.get('group'),
       sort: this.get('sort'),
+      delay: this.get('delay'),
       disabled: this.get('disabled'),
       store: this.get('store'),
       animation: this.get('animation'),
@@ -53,6 +56,8 @@ var SortableItems = Ember.Component.extend({
       filter: this.get('filter'),
       draggable: this.get('draggable'),
       ghostClass: this.get('ghostClass'),
+      chosenClass: this.get('chosenClass'),
+      dataIdAttr: 'data-id',
       scroll: this.get('scroll'),
       scrollSensitivity: this.get('scrollSensitivity'),
       scrollSpeed: this.get('scrollSpeed'),
@@ -68,24 +73,52 @@ var SortableItems = Ember.Component.extend({
 
     var instance = new Sortable(this.$()[0], options);
     var collection = this.get('itemCollection');
-    this.set('_itemCollection', collection.slice());
+
+    function collectionUpdated() {
+      Ember.run.scheduleOnce('afterRender', function() {
+        Array.prototype.forEach.call(instance.el.children, function(item, i) {
+          if (item.dataset) {
+            item.dataset['item'] = collection.objectAt(i);
+            item.dataset['id'] = i;
+          }
+        });
+      });
+    }
+
+    this.set('_itemCollection', collection.map(function(item, i) {
+      return {
+        item: item,
+        id: i
+      };
+    }));
     this.set('_itemCollectionSorted', collection.slice());
     this.set('_sortableInstance', instance);
-    Array.prototype.forEach.call(instance.el.children, function(item, i) {
-      if (item.dataset) {
-        item.dataset.item = collection.objectAt(i);
-        item.dateset.id = i;
-      }
-    });
-    this.addObserver('itemCollection', function() {
+    collectionUpdated();
+
+    this.addObserver('itemCollection.[]', function() {
       var collection = this.get('itemCollection');
-      if (collection.length && collection.isAny(function(item, i) {
-        return item !== this.get('itemCollectionSorted').objectAt(i);
+      var sortedCollection = this.get('_itemCollectionSorted');
+      if (collection.length && collection.some(function(item, i) {
+        var sortedItem = sortedCollection.objectAt(i);
+        return item !== sortedItem.item;
       })) {
-        this.set('_itemCollection', collection);
-        this.set('_itemCollectionSorted', collection);
+        this.set('_itemCollectionSorted', collection.slice());
+        this.set('_itemCollection', collection.map(function(item, i) {
+          return {
+            item: item,
+            id: i
+          };
+        }));
+      } else {
+        this.get('_itemCollection').forEach(function(item) {
+          var newOrder = sortedCollection.getEach('id');
+          var oldId = item.id.toString();
+          Ember.set(item, 'id', newOrder.indexOf(oldId));
+        });
       }
     });
+
+    this.addObserver('_itemCollection', collectionUpdated);
   }),
 
 
@@ -142,12 +175,17 @@ var SortableItems = Ember.Component.extend({
     Changed sorting within list
   */
   _onUpdate: function(evt) {
-    var sortedCollection  = Array.prototype.map.call(this.$().children(), function(item) {
-      return item.dataset.item;
+    this._sendOutAction('onUpdateAction', evt);
+    var sortedCollection  = Array.prototype.map.call(this.$().children(), function(item, i) {
+      var sortedItem = {
+        item: item.dataset.item,
+        id: item.dataset.id
+      };
+      item.dataset.id = i;
+      return sortedItem;
     });
     this.set('_itemCollectionSorted', sortedCollection);
-    this.set('itemCollection', sortedCollection);
-    this._sendOutAction('onUpdateAction', evt);
+    this.set('itemCollection', sortedCollection.getEach('item'));
   },
 
   /**

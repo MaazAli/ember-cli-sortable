@@ -1,5 +1,5 @@
-{{#each _itemCollection as |item index|}}
-  {{yield item removeItem}}
+{{#each _itemCollection as |item|}}
+  {{yield item.item item.id}}
 {{else}}
   {{{noItemText}}}
 {{/each}}
