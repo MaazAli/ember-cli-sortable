@@ -25,7 +25,7 @@ var SortableItems = Ember.Component.extend({
   */
   group: null,
   sort: true,
-  delay: 50,
+  delay: 10,
   disabled: false,
   store: null,
   animation: 200,
@@ -100,7 +100,7 @@ var SortableItems = Ember.Component.extend({
       var sortedCollection = this.get('_itemCollectionSorted');
       if (collection.length && collection.some(function(item, i) {
         var sortedItem = sortedCollection.objectAt(i);
-        return item !== sortedItem.item;
+        return !sortedItem || item !== sortedItem.item;
       })) {
         this.set('_itemCollectionSorted', collection.slice());
         this.set('_itemCollection', collection.map(function(item, i) {
