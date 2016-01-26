@@ -114,7 +114,11 @@ var SortableItems = Ember.Component.extend({
     An item is dropped into the list from another list
   */
   _onAdd: function(evt) {
-    this._sendOutAction('onAddAction', evt);
+    Ember.run(this, function() {
+      var collection = this.get('itemCollection');
+      var item = collection.objectAt(evt.oldIndex);
+      this._sendOutAction('onAddAction', evt, item);
+    });
   },
 
   /**
@@ -166,7 +170,11 @@ var SortableItems = Ember.Component.extend({
     An item is removed from the list and added into another
   */
   _onRemove: function(evt) {
-    this._sendOutAction('onRemoveAction', evt);
+    Ember.run(this, function() {
+      var collection = this.get('itemCollection');
+      var item = collection.objectAt(evt.oldIndex);
+      this._sendOutAction('onRemoveAction', evt, item);
+    });
   },
 
   /**
@@ -235,9 +243,9 @@ var SortableItems = Ember.Component.extend({
     Used as an interface for the sendAction method, checks if consumer defined
     an action before sending one out
   */
-  _sendOutAction: function(action, evt) {
+  _sendOutAction: function(action, ...args) {
     if (this.get(action)) {
-      this.sendAction(action, evt);
+      this.sendAction(action, ...args);
     }
   },
 
