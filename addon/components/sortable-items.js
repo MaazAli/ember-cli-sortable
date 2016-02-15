@@ -72,10 +72,11 @@ var SortableItems = Ember.Component.extend({
     };
 
     var instance = new Sortable(this.$()[0], options);
-    var collection = this.get('itemCollection');
+    var self = this;
 
     function collectionUpdated() {
       Ember.run.scheduleOnce('afterRender', function() {
+        var collection = self.get('itemCollection');
         Array.prototype.forEach.call(instance.el.children, function(item, i) {
           if (item.dataset) {
             item.dataset['item'] = collection.objectAt(i);
@@ -85,13 +86,13 @@ var SortableItems = Ember.Component.extend({
       });
     }
 
-    this.set('_itemCollection', collection.map(function(item, i) {
+    this.set('_itemCollection', this.get('itemCollection').map(function(item, i) {
       return {
         item: item,
         id: i
       };
     }));
-    this.set('_itemCollectionSorted', collection.slice());
+    this.set('_itemCollectionSorted', this.get('itemCollection').slice());
     this.set('_sortableInstance', instance);
     collectionUpdated();
 
@@ -176,16 +177,18 @@ var SortableItems = Ember.Component.extend({
   */
   _onUpdate: function(evt) {
     this._sendOutAction('onUpdateAction', evt);
-    var sortedCollection  = Array.prototype.map.call(this.$().children(), function(item, i) {
+    var items = [];
+    var sortedCollection = Array.prototype.map.call(this.$().children(), function(item, i) {
       var sortedItem = {
         item: item.dataset.item,
         id: item.dataset.id
       };
       item.dataset.id = i;
+      items.pushObject(item.dataset.item);
       return sortedItem;
     });
     this.set('_itemCollectionSorted', sortedCollection);
-    this.set('itemCollection', sortedCollection.getEach('item'));
+    this.set('itemCollection', items);
   },
 
   /**
