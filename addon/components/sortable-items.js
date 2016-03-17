@@ -38,6 +38,40 @@ var SortableItems = Ember.Component.extend({
   scrollSensitivity: 30, // px
   scrollSpeed: 10, // px
 
+  collectionUpdated() {
+    Ember.run.scheduleOnce('afterRender', () => {
+      var collection = this.get('itemCollection');
+      Array.prototype.forEach.call(this.get('_sortableInstance.el.children'), function(item, i) {
+        if (item.dataset) {
+          item.dataset['item'] = collection.objectAt(i);
+          item.dataset['id'] = i;
+        }
+      });
+    });
+  },
+  itemCollectionObserver: Ember.observer('itemCollection', 'itemCollection.[]', function() {
+    var collection = this.get('itemCollection');
+    var sortedCollection = this.get('_itemCollectionSorted');
+    if (JSON.stringify(collection.toArray()) !== JSON.stringify(sortedCollection.toArray())) {
+      this.set('_itemCollectionSorted', collection.slice());
+      this.set('_itemCollection', collection.map(function(item, i) {
+        return {
+          item: item,
+          id: i
+        };
+      }));
+    } else {
+      this.get('_itemCollection').forEach(function(item) {
+        var newOrder = sortedCollection.getEach('id');
+        var oldId = item.id.toString();
+        Ember.set(item, 'id', newOrder.indexOf(oldId));
+      });
+    }
+  }),
+  _itemCollectionObserver: Ember.observer('_itemCollection.[]', function() {
+    this.collectionUpdated();
+  }),
+
   /**
     @method setup
     Initializes Sortable with given properties and binds
@@ -74,18 +108,6 @@ var SortableItems = Ember.Component.extend({
     var instance = new Sortable(this.$()[0], options);
     var self = this;
 
-    function collectionUpdated() {
-      Ember.run.scheduleOnce('afterRender', function() {
-        var collection = self.get('itemCollection');
-        Array.prototype.forEach.call(instance.el.children, function(item, i) {
-          if (item.dataset) {
-            item.dataset['item'] = collection.objectAt(i);
-            item.dataset['id'] = i;
-          }
-        });
-      });
-    }
-
     this.set('_itemCollection', this.get('itemCollection').map(function(item, i) {
       return {
         item: item,
@@ -94,32 +116,7 @@ var SortableItems = Ember.Component.extend({
     }));
     this.set('_itemCollectionSorted', this.get('itemCollection').slice());
     this.set('_sortableInstance', instance);
-    collectionUpdated();
-
-    this.addObserver('itemCollection.[]', function() {
-      var collection = this.get('itemCollection');
-      var sortedCollection = this.get('_itemCollectionSorted');
-      if (collection.length && collection.some(function(item, i) {
-        var sortedItem = sortedCollection.objectAt(i);
-        return !sortedItem || item !== sortedItem.item;
-      })) {
-        this.set('_itemCollectionSorted', collection.slice());
-        this.set('_itemCollection', collection.map(function(item, i) {
-          return {
-            item: item,
-            id: i
-          };
-        }));
-      } else {
-        this.get('_itemCollection').forEach(function(item) {
-          var newOrder = sortedCollection.getEach('id');
-          var oldId = item.id.toString();
-          Ember.set(item, 'id', newOrder.indexOf(oldId));
-        });
-      }
-    });
-
-    this.addObserver('_itemCollection', collectionUpdated);
+    this.collectionUpdated();
   }),
 
 
@@ -188,7 +185,7 @@ var SortableItems = Ember.Component.extend({
       return sortedItem;
     });
     this.set('_itemCollectionSorted', sortedCollection);
-    this.set('itemCollection', items);
+    this.get('itemCollection').setObjects(items);
   },
 
   /**
