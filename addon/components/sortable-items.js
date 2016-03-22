@@ -52,7 +52,7 @@ var SortableItems = Ember.Component.extend({
   itemCollectionObserver: Ember.observer('itemCollection', 'itemCollection.[]', function() {
     var collection = this.get('itemCollection');
     var sortedCollection = this.get('_itemCollectionSorted');
-    if (JSON.stringify(collection.toArray()) !== JSON.stringify(sortedCollection.toArray())) {
+    if (JSON.stringify(collection.toArray()) !== JSON.stringify(sortedCollection.getEach('item').toArray())) {
       this.set('_itemCollectionSorted', collection.slice());
       this.set('_itemCollection', collection.map(function(item, i) {
         return {
