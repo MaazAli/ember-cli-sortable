@@ -79,5 +79,10 @@ Example
 }}
 ```
 
+##TODO
+
+1. Create a demo of the addon.
+2. Write test cases supporting the addon.
+
 ## Contribution
 Fork this repository, make a feature branch and send in a pull request.

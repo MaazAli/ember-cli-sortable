@@ -1,14 +1,22 @@
 import Ember from 'ember';
 import layout from '../templates/components/sortable-items';
+
 /* global Sortable */
+
+const {
+  Component,
+  computed,
+  observer,
+  run
+} = Ember;
 
 var pid,
     frozen,
     frozenObjects,
     positions;
 
-var SortableItems = Ember.Component.extend({
-  target: Ember.computed.alias('targetObject'), // Bubble up all actions
+export default Component.extend({
+  target: computed.alias('targetObject'),
   layout: layout,
   tagName: "ul",
   classNames: ['sortable-items'],
@@ -37,9 +45,11 @@ var SortableItems = Ember.Component.extend({
     Initializes Sortable with given properties and binds
     callbacks to private methods
   */
-  setup: function() {
 
-    var options = {
+  didInsertElement() {
+    this._super(...arguments);
+
+    let options = {
       group: this.get('group'),
       sort: this.get('sort'),
       disabled: this.get('disabled'),
@@ -51,14 +61,14 @@ var SortableItems = Ember.Component.extend({
       scroll: this.get('scroll'),
       scrollSensitivity: this.get('scrollSensitivity'),
       scrollSpeed: this.get('scrollSpeed'),
-      onStart: Ember.run.bind(this, this._onStart),
-      onEnd: Ember.run.bind(this, this._onEnd),
-      onAdd: Ember.run.bind(this, this._onAdd),
-      onUpdate: Ember.run.bind(this, this._onUpdate),
-      onSort: Ember.run.bind(this, this._onSort),
-      onRemove: Ember.run.bind(this, this._onRemove),
-      onFilter: Ember.run.bind(this, this._onFilter),
-      onMove: Ember.run.bind(this, this._onMove)
+      onStart: run.bind(this, this._onStart),
+      onEnd: run.bind(this, this._onEnd),
+      onAdd: run.bind(this, this._onAdd),
+      onUpdate: run.bind(this, this._onUpdate),
+      onSort: run.bind(this, this._onSort),
+      onRemove: run.bind(this, this._onRemove),
+      onFilter: run.bind(this, this._onFilter),
+      onMove: run.bind(this, this._onMove)
     };
 
     if (this.get('draggable')) {
@@ -67,22 +77,21 @@ var SortableItems = Ember.Component.extend({
 
     this.set('_sortableInstance', new Sortable(this.$()[0], options));
 
-  }.on('didInsertElement'),
-
+  },
 
   /**
     @method _onStart
     @private
     The user has started to drag an item
   */
-  _onStart: function(evt) {
+  _onStart(evt) {
 
-    Ember.run(this, function() {
-      var freezeSelector = this.get('freeze');
+    run(this, function() {
+      let freezeSelector = this.get('freeze');
 
       if (freezeSelector) {
-        var _sortableInstance = this.get('_sortableInstance');
-        var itemCollection = this.get('itemCollection');
+        let _sortableInstance = this.get('_sortableInstance');
+        let itemCollection = this.get('itemCollection');
         frozenObjects = [];
 
         frozen = [].slice.call(_sortableInstance.el.querySelectorAll(freezeSelector));
@@ -104,7 +113,7 @@ var SortableItems = Ember.Component.extend({
     @private
     The user has stopped draggging an item
   */
-  _onEnd: function(evt) {
+  _onEnd(evt) {
     this._sendOutAction('onEndAction', evt);
   },
 
@@ -113,7 +122,7 @@ var SortableItems = Ember.Component.extend({
     @private
     An item is dropped into the list from another list
   */
-  _onAdd: function(evt) {
+  _onAdd(evt) {
     this._sendOutAction('onAddAction', evt);
   },
 
@@ -122,28 +131,26 @@ var SortableItems = Ember.Component.extend({
     @private
     Changed sorting within list
   */
-  _onUpdate: function(evt) {
+  _onUpdate(evt) {
     this._sendOutAction('onUpdateAction', evt);
 
-    Ember.run(this, function() {
-      var collection = this.get('itemCollection');
-      var item = collection.objectAt(evt.oldIndex);
-      var list = evt.to;
-      var freezeSelector = this.get('freeze');
-      collection.removeAt(evt.oldIndex);
-      collection.insertAt(evt.newIndex, item);
+    run(this, function() {
+      let collection = this.get('itemCollection');
+      let item = collection[evt.oldIndex];
+      let freezeSelector = this.get('freeze');
+      delete collection[evt.oldIndex];
+      collection.splice(evt.newIndex, 0, item);
 
       if (freezeSelector) {
         frozenObjects.forEach(function(obj, i) {
-          var pos = positions[i];
-          if (collection.objectAt(pos) !== obj) {
-            var realPos = collection.indexOf(obj);
-            collection.removeAt(realPos);
-            collection.insertAt(pos, obj);
+          let pos = positions[i];
+          if (collection[pos] !== obj) {
+            let realPos = collection.indexOf(obj);
+            delete collection[realPos];
+            collection.splice(pos, 0, obj);
           }
         });
       }
-
 
       this.sendAction('onItemMoveAction', item, evt.oldIndex, evt.newIndex);
 
@@ -155,7 +162,7 @@ var SortableItems = Ember.Component.extend({
     @private
     Called when any change occurs within the list (add, update, remove)
   */
-  _onSort: function(evt) {
+  _onSort(evt) {
     this._sendOutAction('onSortAction', evt);
   },
 
@@ -165,7 +172,7 @@ var SortableItems = Ember.Component.extend({
     @private
     An item is removed from the list and added into another
   */
-  _onRemove: function(evt) {
+  _onRemove(evt) {
     this._sendOutAction('onRemoveAction', evt);
   },
 
@@ -174,7 +181,7 @@ var SortableItems = Ember.Component.extend({
     @private
     Called when an attempt is made to drag a filtered item
   */
-  _onFilter: function(evt) {
+  _onFilter(evt) {
     this._sendOutAction('onFilterAction', evt);
   },
 
@@ -183,23 +190,23 @@ var SortableItems = Ember.Component.extend({
     @private
     Called when re-ordering the list during drag
   */
-  _onMove: function(evt) {
+  _onMove(evt) {
     this._sendOutAction('onMoveAction', evt);
 
-    var vector;
-    var freeze = false;
-    var freezeSelector = this.get('freeze');
+    let vector;
+    let freeze = false;
+    let freezeSelector = this.get('freeze');
 
     if (freezeSelector) {
       clearTimeout(pid);
 
       pid = setTimeout(function () {
-        var list = evt.to;
+        let list = evt.to;
         frozen.forEach(function (el, i) {
-          var idx = positions[i];
+          let idx = positions[i];
 
           if (list.children[idx] !== el) {
-            var realIdx = Sortable.utils.index(el);
+            let realIdx = Sortable.utils.index(el);
             list.insertBefore(el, list.children[idx + (realIdx < idx)]);
           }
         });
@@ -224,10 +231,10 @@ var SortableItems = Ember.Component.extend({
     @private
     Used to update sortable properties
   */
-  _updateOptionDisabled: function() {
-    var _sortableInstance = this.get('_sortableInstance');
+  _updateOptionDisabled: observer('disabled', function() {
+    let _sortableInstance = this.get('_sortableInstance');
     _sortableInstance.option('disabled', this.get('disabled'));
-  }.observes('disabled'),
+  }),
 
   /**
     @method _sendOutAction
@@ -235,19 +242,18 @@ var SortableItems = Ember.Component.extend({
     Used as an interface for the sendAction method, checks if consumer defined
     an action before sending one out
   */
-  _sendOutAction: function(action, evt) {
+  _sendOutAction(action, evt) {
     if (this.get(action)) {
       this.sendAction(action, evt);
     }
   },
 
-  teardown: function() {
-    var _sortableInstance = this.get('_sortableInstance');
+
+  willDestroyElement() {
+    this._super(...arguments);
+    let _sortableInstance = this.get('_sortableInstance');
     if (_sortableInstance) {
       _sortableInstance.destroy();
     }
-  }.on('willDestroyElement')
-
+  }
 });
-
-export default SortableItems;
