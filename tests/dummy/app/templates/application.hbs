@@ -1,3 +1,16 @@
 <h2 id="title">Welcome to Ember.js</h2>
 
+{{sortable-items
+  itemCollection=model
+  animation=100
+  handle=".item__handle"
+  filter=".item--pinned"
+  draggable=".item"
+  ghostClass="item--ghost"
+  onItemMoveAction="itemMoved"
+  templateName="sortable-items-partial"
+  noItemText="<div style='text-align:center'>No items found</div>"
+}}
+
+
 {{outlet}}
